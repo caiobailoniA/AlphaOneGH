@@ -36,13 +36,6 @@ jobs:
           echo test, and deploy your project.
 
       # Deployment Steps:
-
-      - name: deploy
-        id: deployment
-        uses: actions/deploy-pages@v1
-
-        env:
-         name: development
     
     # Fails the job forcing a Fail Build
 
