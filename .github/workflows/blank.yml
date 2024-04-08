@@ -37,20 +37,7 @@ jobs:
 
       # Deployment Steps:
 
-      - name: Deployment
-        concurrency: Development
-
-        on:
-        push:
-          branches: main
-
-        jobs:
-        deployment:
-        runs-on: ubuntu-latest
-        environment: development
     
-          steps:
-          - name: deploy
 
     # Fails the job forcing a Fail Build
 
