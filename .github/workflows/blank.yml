@@ -1,4 +1,4 @@
-# This is a basic workflow to help you get started with Action V4
+
 
 name: CI
 
@@ -35,10 +35,12 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 
+      # Deployment Steps:
+    
     # Fails the job forcing a Fail Build
 
-      - name: Try to fail
-        run: exit 1
-      - name: Print message if we don't fail
-        run: echo Should not get here
+      #- name: Try to fail
+        #run: exit 1
+      #- name: Print message if we don't fail
+        #run: echo Should not get here
 

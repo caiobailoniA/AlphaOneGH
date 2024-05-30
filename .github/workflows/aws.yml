@@ -1,0 +1,18 @@
+# This workflow will build and push a new container image,
+# and then will deploy a new task definition to a different env, when there is a push to the "main" branch.
+
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
