@@ -39,8 +39,8 @@ jobs:
     
     # Fails the job forcing a Fail Build
 
-      #- name: Try to fail
-        #run: exit 1
-      #- name: Print message if we don't fail
-        #run: echo Should not get here
+      - name: Try to fail
+        run: exit 1
+      - name: Print message if we don't fail
+        run: echo Should not get here
 
