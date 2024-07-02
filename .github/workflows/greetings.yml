@@ -1,3 +1,5 @@
+*Another Workflow*
+
 name: Greetings
 
 on: [pull_request_target, issues]
