@@ -1,0 +1,48 @@
+# OpenTelemetry Collector config for the My Work dashboard (MOBL-65).
+# Receives OTLP from the web client, edge gateway and task query handlers,
+# exposes metrics for Prometheus and forwards traces to the trace backend.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          # Browser clients send OTLP directly; restrict to the dashboard origin.
+          allowed_origins:
+            - https://my-work.example.com
+          allowed_headers:
+            - traceparent
+            - tracestate
+            - baggage
+            - content-type
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 20
+  batch:
+    timeout: 5s
+
+exporters:
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+  otlp/traces:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/traces]
