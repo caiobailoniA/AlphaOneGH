@@ -1,0 +1,65 @@
+groups:
+  - name: my-work-recording
+    rules:
+      - record: planner:my_work_cache_hit_ratio:rate5m
+        expr: |
+          sum(rate(planner_my_work_cache_hit_rate_total{result="hit"}[5m]))
+          /
+          sum(rate(planner_my_work_cache_hit_rate_total[5m]))
+      - record: planner:my_work_query_latency_p95_ms:rate5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(planner_my_work_query_latency_milliseconds_bucket[5m])))
+
+  - name: my-work-synthetic
+    rules:
+      - alert: MyWorkSyntheticP95LatencyHigh
+        expr: quantile_over_time(0.95, probe_duration_seconds{job="my-work-synthetic"}[5m]) > 0.2
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: My Work synthetic P95 latency above 200ms
+          description: "P95 probe latency for {{ $labels.instance }} is {{ $value | humanizeDuration }} (SLA 200ms)."
+      - alert: MyWorkSyntheticAvailabilityBelowSLA
+        expr: avg_over_time(probe_success{job="my-work-synthetic"}[30d]) < 0.999
+        labels:
+          severity: page
+        annotations:
+          summary: My Work availability below 99.9%
+          description: "30d probe availability for {{ $labels.instance }} is {{ $value | humanizePercentage }}."
+      - alert: MyWorkSyntheticProbeDown
+        expr: probe_success{job="my-work-synthetic"} == 0
+        for: 3m
+        labels:
+          severity: page
+        annotations:
+          summary: My Work synthetic probe failing
+          description: "Probe for {{ $labels.instance }} has failed for 3 minutes."
+
+  - name: my-work-service
+    rules:
+      - alert: MyWorkQueryLatencyP95High
+        expr: planner:my_work_query_latency_p95_ms:rate5m > 200
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: My Work query P95 latency above 200ms
+          description: "Real-traffic P95 query latency is {{ $value }}ms."
+      - alert: MyWorkMutationErrors
+        expr: sum by (error_code) (rate(planner_my_work_mutation_errors_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: My Work mutation errors elevated
+          description: "Mutation errors with code {{ $labels.error_code }} at {{ $value }}/s."
+      - alert: MyWorkCacheHitRatioLow
+        expr: planner:my_work_cache_hit_ratio:rate5m < 0.7
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: My Work Redis cache hit ratio below 70%
+          description: "Cache hit ratio is {{ $value | humanizePercentage }}."
